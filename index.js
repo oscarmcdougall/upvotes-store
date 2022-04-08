@@ -3,20 +3,23 @@ import jwt_decode from "jwt-decode";
 import promiseRetry from "promise-retry";
 import jsdom from "jsdom";
 const { JSDOM } = jsdom;
-import mongoose from 'mongoose';
-import Token from './modules/token.js';
+import mongoose from "mongoose";
+import Token from "./modules/token.js";
 
 async function grabToken(username, password) {
-
     return new Promise(async (resolve, reject) => {
         const grabToken = await promiseRetry(async (retry, number) => {
-
             const cookieJar = new CookieJar();
 
             const abortControllerLoginPage = new AbortController();
-            setTimeout(() => { abortControllerLoginPage.abort() }, 5000);
+            setTimeout(() => {
+                abortControllerLoginPage.abort();
+            }, 5000);
 
-            const loginPage = await fetch(cookieJar, "https://www.reddit.com/login", { signal: abortControllerLoginPage.signal });
+            const loginPage = await fetch(cookieJar, "https://www.reddit.com/login", {
+                signal: abortControllerLoginPage.signal,
+            });
+
             const loginPageBody = await loginPage.text();
 
             const pageDom = new JSDOM(loginPageBody);
@@ -31,7 +34,9 @@ async function grabToken(username, password) {
             console.log(`[${username}] Attempting login...`);
 
             const abortControllerLogin = new AbortController();
-            setTimeout(() => { abortControllerLogin.abort() }, 5000);
+            setTimeout(() => {
+                abortControllerLogin.abort();
+            }, 5000);
 
             try {
                 const loginPost = await fetch(cookieJar, "https://www.reddit.com/login", {
@@ -39,33 +44,35 @@ async function grabToken(username, password) {
                     method: "POST",
                     body: `csrf_token=${csrfToken}&otp=&password=${password}&dest=https%3A%2F%2Fwww.reddit.com&username=${username}`,
                     headers: {
-                        "accept": "*/*",
+                        accept: "*/*",
                         "accept-language": "en-GB,en;q=0.9",
                         "content-type": "application/x-www-form-urlencoded",
                         "sec-fetch-dest": "empty",
                         "sec-fetch-mode": "cors",
                         "sec-fetch-site": "same-origin",
                         "sec-gpc": "1",
-                        "Referer": "https://www.reddit.com/login/",
-                        "Referrer-Policy": "strict-origin-when-cross-origin"
-                    }
+                        Referer: "https://www.reddit.com/login/",
+                        "Referrer-Policy": "strict-origin-when-cross-origin",
+                    },
                 });
 
                 console.log(`[${username}] Logged in!`);
                 console.log(`[${username}] Loading home page...`);
 
                 const abortControllerHomePage = new AbortController();
-                setTimeout(() => { abortControllerHomePage.abort() }, 5000);
+                setTimeout(() => {
+                    abortControllerHomePage.abort();
+                }, 5000);
 
                 const homePage = await fetch(cookieJar, "https://www.reddit.com/", {
                     signal: abortControllerHomePage.signal,
-                    headers: loginPost.headers
+                    headers: loginPost.headers,
                 });
 
                 var tokenRaw;
 
-                for (var i = 0; i < homePage.headers.raw()['set-cookie'].length; i++) {
-                    const foundToken = homePage.headers.raw()['set-cookie'][i];
+                for (var i = 0; i < homePage.headers.raw()["set-cookie"].length; i++) {
+                    const foundToken = homePage.headers.raw()["set-cookie"][i];
                     if (foundToken.startsWith("token_v2=")) {
                         tokenRaw = foundToken;
                     }
@@ -106,7 +113,7 @@ async function getToken(username, password) {
 
         const bearerToken = await grabToken(username, password);
 
-        const saveToken = await Token.findOneAndUpdate({ username: username }, { token: bearerToken }, {upsert: true});
+        await Token.findOneAndUpdate({ username: username }, { token: bearerToken }, { upsert: true });
 
         console.log(`[${username}] Token found, stored in cache!`);
 
@@ -115,8 +122,7 @@ async function getToken(username, password) {
 }
 
 (async () => {
-
-    await mongoose.connect('mongodb://localhost/upvotes-store');
+    await mongoose.connect("mongodb://localhost/upvotes-store");
 
     for (var i = 0; i < 100; i++) {
         const bearerToken = await getToken("ciiwupzhawksmaet", "LugB97sw5Mo8qhm1");
