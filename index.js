@@ -10,34 +10,34 @@ async function grabToken(username, password) {
     const grabToken = await promiseRetry(async retry => {
         const cookieJar = new CookieJar();
 
-        const abortControllerLoginPage = new AbortController();
-        setTimeout(() => {
-            abortControllerLoginPage.abort();
-        }, 5000);
-
-        const loginPage = await fetch(cookieJar, "https://www.reddit.com/login", {
-            signal: abortControllerLoginPage.signal,
-        });
-
-        const loginPageBody = await loginPage.text();
-
-        const pageDom = new JSDOM(loginPageBody);
-
-        if (pageDom.window.document.querySelector(`input[name="csrf_token"]`) == null) {
-            console.log(`[${username}] Rate limited, retrying login...`);
-            retry();
-        }
-
-        const csrfToken = pageDom.window.document.querySelector(`input[name="csrf_token"]`).value;
-
-        console.log(`[${username}] Attempting login...`);
-
-        const abortControllerLogin = new AbortController();
-        setTimeout(() => {
-            abortControllerLogin.abort();
-        }, 5000);
-
         try {
+            const abortControllerLoginPage = new AbortController();
+            setTimeout(() => {
+                abortControllerLoginPage.abort();
+            }, 5000);
+
+            const loginPage = await fetch(cookieJar, "https://www.reddit.com/login", {
+                signal: abortControllerLoginPage.signal,
+            });
+
+            const loginPageBody = await loginPage.text();
+
+            const pageDom = new JSDOM(loginPageBody);
+
+            if (pageDom.window.document.querySelector(`input[name="csrf_token"]`) == null) {
+                console.log(`[${username}] Rate limited, retrying login...`);
+                retry();
+            }
+
+            const csrfToken = pageDom.window.document.querySelector(`input[name="csrf_token"]`).value;
+
+            console.log(`[${username}] Attempting login...`);
+
+            const abortControllerLogin = new AbortController();
+            setTimeout(() => {
+                abortControllerLogin.abort();
+            }, 5000);
+
             const loginPost = await fetch(cookieJar, "https://www.reddit.com/login", {
                 signal: abortControllerLogin.signal,
                 method: "POST",
