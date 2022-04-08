@@ -120,8 +120,6 @@ async function getToken(username, password) {
 (async () => {
     await mongoose.connect("mongodb://localhost/upvotes-store");
 
-    for (var i = 0; i < 100; i++) {
-        const bearerToken = await getToken("ciiwupzhawksmaet", "LugB97sw5Mo8qhm1");
-        console.log(bearerToken);
-    }
+    const bearerToken = await getToken("", "");
+    console.log(bearerToken);
 })();
