@@ -1,0 +1,14 @@
+{
+    "name": "upvotes-store",
+    "version": "0.0.1",
+    "main": "index.js",
+    "contributors": [
+        {
+            "name": "Aaron"
+        },
+        {
+            "name": "Oscar"
+        }
+    ],
+    "license": "MIT"
+}
