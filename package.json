@@ -11,5 +11,12 @@
             "name": "Oscar"
         }
     ],
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "jsdom": "^19.0.0",
+        "jwt-decode": "^3.1.2",
+        "mongoose": "^6.2.10",
+        "node-fetch-cookies": "^2.0.4",
+        "promise-retry": "^2.0.1"
+    }
 }
